@@ -3,7 +3,6 @@ import java.util.*;
 
 public class Main {
     public static void main(String[] args) {
-        //create a list books
         Main main = new Main();
         main.testCategorizedBooks();
 
