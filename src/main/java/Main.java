@@ -1,4 +1,5 @@
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 public class Main {
@@ -8,7 +9,8 @@ public class Main {
 
 
     }
-    public  void testCategorizedBooks() {
+
+    public void testCategorizedBooks() {
         // Create some categories
         Category cat1 = new Category();
         cat1.id = 1L;
@@ -33,7 +35,6 @@ public class Main {
         cat4.parent = cat2;
 
 
-
         // Create some books
         Book book1 = new Book();
         book1.id = 1L;
@@ -55,7 +56,7 @@ public class Main {
         books.add(book1);
         books.add(book2);
         books.add(book3);
-        Map<Category, List<Book>> categorizedBooks = categoriedBooks(books);
+        Map<Category, List<Book>> categorizedBooks = categorizeBooks(books);
 
         // Check if the categories were assigned properly
         for (Map.Entry<Category, List<Book>> entry : categorizedBooks.entrySet()) {
@@ -68,19 +69,36 @@ public class Main {
         }
     }
 
-    public Map<Category, List<Book>> categoriedBooks(ArrayList<Book> books){
-        //create a Map to classify books by categories
-        Map<Category, List<Book>> categorizedBooks = new HashMap<>();
 
-        for(Book book: books) {
+    public Map<Category, List<Book>>  categorizeBooks(ArrayList<Book> books){
+        Map<Category, List<Book>> categoryListMap= new HashMap<>();
+        //Loop over each book in the given list.
+        for(Book book : books){
             for(Category category: book.categories){
-                List<Book> booksInSameCategory = categorizedBooks.getOrDefault(category, new ArrayList<>());
+                // Get the list of books for this category. If the category doesn't exist yet,
+                // use an empty list as the default.
+                List<Book> booksInSameCategory = categoryListMap.getOrDefault(category, new ArrayList<>());
                 booksInSameCategory.add(book);
-                categorizedBooks.put(category, booksInSameCategory);
+                categoryListMap.put(category,booksInSameCategory);
             }
         }
-        return categorizedBooks;
+        return categoryListMap;
     }
+
+
+/* stream solution
+//books.stream() creates a Stream of books from the list.
+//The flatMap function transforms each book into a Stream of category-book pairs (AbstractMap.SimpleEntry).
+//collect gathers the entries into a Map. It uses Collectors.groupingBy to group the pairs by category (Map.Entry::getKey), mapping each pair to its book (Map.Entry::getValue), and then collecting these into a List (Collectors.toList()).
+    public Map<Category, List<Book>> categorizeBooks(List<Book> books) {
+        return books.stream()
+                .flatMap(book -> book.categories.stream()
+                        .map(category -> new AbstractMap.SimpleEntry<>(category, book)))
+                .collect(Collectors.groupingBy(Map.Entry::getKey,
+                        Collectors.mapping(Map.Entry::getValue, Collectors.toList())));
+    }
+*/
+
     class Category {
         public Long id;
         public String name;
